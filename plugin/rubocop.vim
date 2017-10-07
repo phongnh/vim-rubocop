@@ -53,6 +53,7 @@ function! s:RuboCop(filename, current_args) abort
   let l:extra_args     = g:vimrubocop_extra_args
   let l:rubocop_cmd    = g:vimrubocop_rubocop_cmd
   let l:rubocop_opts   = ' --format emacs '.a:current_args.' '.l:extra_args
+  let l:quickfix_type  = empty(l:filename) ? 'c' : 'l'
 
   if g:vimrubocop_config != ''
     let l:rubocop_opts = ' --config '.g:vimrubocop_config.' '.l:rubocop_opts
@@ -65,11 +66,15 @@ function! s:RuboCop(filename, current_args) abort
   endif
   let l:rubocop_output  = substitute(l:rubocop_output, '\\"', "'", 'g')
   let l:rubocop_results = split(l:rubocop_output, "\n")
-  lexpr l:rubocop_results
-  if len(l:rubocop_results) > 0
-    lopen
+  if l:quickfix_type == 'c'
+    cexpr l:rubocop_results
   else
-    lclose
+    lexpr l:rubocop_results
+  endif
+  if len(l:rubocop_results) > 0
+    execute l:quickfix_type . 'open'
+  else
+    execute l:quickfix_type . 'close'
     echom 'Rubocop: Passed. Hooray!'
   endif
 endfunction
