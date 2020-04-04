@@ -33,13 +33,16 @@ if !exists('g:vimrubocop_keymap')
 endif
 
 let s:rubocop_switches = [
+            \ '--force-default-config',
             \ '-F', '--fail-fast',
             \ '-D', '--display-cop-names',
             \ '-S', '--display-style-guide',
-            \ '-R', '--rails',
             \ '-n', '--no-color', '--color',
             \ '-l', '--lint',
+            \ '-x', '--fix-layout',
+            \ '--safe-auto-correct',
             \ '-a', '--auto-correct',
+            \ '-P', '--parallel',
             \ '-v', '--version',
             \ '-V', '--verbose-version'
             \ ]
