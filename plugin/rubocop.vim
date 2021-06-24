@@ -35,16 +35,22 @@ endif
 let s:rubocop_switches = [
             \ '--force-default-config',
             \ '-F', '--fail-fast',
+            \ '-d', '--debug',
             \ '-D', '--display-cop-names',
+            \ '-E', '--extra-details',
             \ '-S', '--display-style-guide',
-            \ '-n', '--no-color', '--color',
+            \ '-a', '--auto-correct', '--safe-auto-correct',
+            \ '-A', '--auto-correct-all',
+            \ '--disable-pending-cops',
+            \ '--enable-pending-cops',
+            \ '--ignore-disable-comments',
+            \ '--safe',
+            \ '--color', '--no-color',
+            \ '-v', '--version',
+            \ '-V', '--verbose-version',
+            \ '-P', '--parallel', '--no-parallel',
             \ '-l', '--lint',
             \ '-x', '--fix-layout',
-            \ '--safe-auto-correct',
-            \ '-a', '--auto-correct',
-            \ '-P', '--parallel',
-            \ '-v', '--version',
-            \ '-V', '--verbose-version'
             \ ]
 
 function! s:RuboCopSwitches(...) abort
