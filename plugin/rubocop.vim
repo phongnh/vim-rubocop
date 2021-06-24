@@ -34,6 +34,9 @@ endif
 
 let s:rubocop_switches = [
             \ '--force-default-config',
+            \ '--except',
+            \ '--only',
+            \ '--only-guide-cops',
             \ '-F', '--fail-fast',
             \ '-d', '--debug',
             \ '-D', '--display-cop-names',
