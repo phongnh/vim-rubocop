@@ -32,6 +32,16 @@ if !exists('g:vimrubocop_keymap')
   let g:vimrubocop_keymap = 1
 endif
 
+if exists('*trim')
+  function! s:Trim(str) abort
+    return trim(a:str)
+  endfunction
+else
+  function! s:Trim(str) abort
+    return substitute(a:str, '^\s*\(.\{-}\)\s*$', '\1', '')
+  endfunction
+endif
+
 let s:rubocop_switches = [
             \ '--force-default-config',
             \ '--except',
@@ -60,19 +70,28 @@ function! s:RuboCopSwitches(...) abort
   return join(s:rubocop_switches, "\n")
 endfunction
 
+function! s:BuildRuboCopCommand(current_args) abort
+  let l:cmd = [
+        \ g:vimrubocop_rubocop_cmd,
+        \ strlen(g:vimrubocop_config) ? '--config ' . g:vimrubocop_config : '',
+        \ '--format emacs',
+        \ a:current_args,
+        \ g:vimrubocop_extra_args
+        \]
+  let l:cmd = filter(map(l:cmd, 's:Trim(v:val)'), 'strlen(v:val)')
+  return join(l:cmd, ' ')
+endfunction
+
 function! s:RuboCop(filename, current_args) abort
-  let l:filename       = a:filename
-  let l:extra_args     = g:vimrubocop_extra_args
-  let l:rubocop_cmd    = g:vimrubocop_rubocop_cmd
-  let l:rubocop_opts   = ' --format emacs '.a:current_args.' '.l:extra_args
-  let l:quickfix_type  = empty(l:filename) ? 'c' : 'l'
+  let l:filename      = a:filename
+  let l:rubocop_cmd   = s:BuildRuboCopCommand(a:current_args)
+  let l:quickfix_type = empty(l:filename) ? 'c' : 'l'
 
-  if g:vimrubocop_config != ''
-    let l:rubocop_opts = ' --config '.g:vimrubocop_config.' '.l:rubocop_opts
-  endif
+  let l:cmd = s:Trim(l:rubocop_cmd . ' ' . l:filename)
+  let s:quickfix_title = l:cmd
 
-  let l:rubocop_output  = system(l:rubocop_cmd.l:rubocop_opts.' '.l:filename)
-  if !empty(matchstr(l:rubocop_opts, '--auto-correct\|-\<a\>'))
+  let l:rubocop_output  = system(l:cmd)
+  if strlen(matchstr(l:rubocop_cmd, '--auto-correct-all\|--safe-auto-correct\|--auto-correct\|-\<a\>\|-\<A\>'))
     "Reload file if using auto correct
     edit
   endif
@@ -85,6 +104,7 @@ function! s:RuboCop(filename, current_args) abort
   endif
   if len(l:rubocop_results) > 0
     execute l:quickfix_type . 'open'
+    let w:quickfix_title = s:quickfix_title
   else
     execute l:quickfix_type . 'close'
     echom 'Rubocop: Passed. Hooray!'
